@@ -7,7 +7,6 @@ public class Ball : MonoBehaviour
     Animator anim;
     Rigidbody rb;
     Collider collider;
-    [SerializeField] GameObject targetObj;
 
     private void Awake()
     {
@@ -33,29 +32,11 @@ public class Ball : MonoBehaviour
         collider.isTrigger = false;
     }
 
-    private void Update()
-    {
-        ShootBall(Vector3.zero, Vector3.zero, 0);
-    }
-
     public void ShootBall(Vector3 origin, Vector3 target, float time)
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-
-        if(Physics.Raycast(ray, out hit, 100f, 1 << 6))
-        {
-            targetObj.transform.position = hit.point + Vector3.up * 0.1f;
-            //Vector3 Vo = CalculateVelocity(origin, target, time);
-            var _time = 2f;
-            Vector3 Vo = CalculateVelocity(transform.position, hit.point, _time);
-
-            if(Input.GetKeyDown(KeyCode.Space))
-            {
-                ReleaseBall();
-                rb.velocity = Vo;
-            }
-        }
+        transform.position = origin;
+        Vector3 Vo = CalculateVelocity(origin, target, time);
+        rb.velocity = Vo;
     }
 
     Vector3 CalculateVelocity(Vector3 origin, Vector3 target, float time)

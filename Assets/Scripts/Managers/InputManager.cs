@@ -14,7 +14,7 @@ public class InputManager : MonoBehaviour
         playerInput = new PlayerInput();
 
         playerInput.Gameplay.Movement.performed += ctx => player.inputDir = ctx.ReadValue<Vector2>();
-        playerInput.Gameplay.Movement.canceled += ctx => player.inputDir = Vector2.zero;
+        playerInput.Gameplay.Movement.canceled += ctx => player.StopMove();
     }
 
     private void OnEnable()

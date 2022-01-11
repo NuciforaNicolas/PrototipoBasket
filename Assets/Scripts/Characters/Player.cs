@@ -29,8 +29,13 @@ public class Player : Character
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
             anim.SetBool("isRunning", true);
         }
-        else
-            anim.SetBool("isRunning", false);
+    }
+
+    public void StopMove()
+    {
+        inputDir = Vector3.zero;
+        anim.SetBool("isRunning", false);
+        if (ballRef) ShootBall();
     }
 
     private void OnCollisionEnter(Collision collision)

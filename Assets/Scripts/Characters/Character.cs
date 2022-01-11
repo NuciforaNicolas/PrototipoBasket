@@ -8,25 +8,16 @@ public class Character : MonoBehaviour
     [SerializeField] Transform ballSlot, shootSlot;
     [SerializeField] protected Ball ballRef;
     [SerializeField] float timeToTakeBall, timeToTarget;
-    [SerializeField] protected bool canTakeBall;
+    [SerializeField] protected bool canTakeBall, canShoot;
     protected Rigidbody rb;
     protected Animator anim;
     protected Vector3 moveDir, targetPos;
-
-    [SerializeField] GameObject debugtarget;
 
     protected virtual void Awake()
     {
         rb = GetComponent<Rigidbody>();
         anim = GetComponent<Animator>();
         canTakeBall = true;
-    }
-
-    private void Update()
-    {
-        var pos = gameObject.transform.forward * shootForce;
-        pos.y = 1.0f;
-        debugtarget.transform.position = transform.position + pos;
     }
 
     protected virtual void Move() { }
@@ -39,6 +30,7 @@ public class Character : MonoBehaviour
             ballRef = collision.gameObject.GetComponent<Ball>();
             ballRef.GetBall(ballSlot);
             canTakeBall = false;
+            canShoot = true;
         }
     }
 
@@ -48,7 +40,7 @@ public class Character : MonoBehaviour
         canTakeBall = true;
     }
 
-    protected void ReleaseBall()
+    protected virtual void ReleaseBall()
     {
         if (!ballRef) return;
         ballRef.ReleaseBall();
@@ -58,9 +50,10 @@ public class Character : MonoBehaviour
     }
 
 
-    protected void ShootBall()
+    protected virtual void ShootBall()
     {
-        StartCoroutine("ShootBallCR");
+        if(ballRef)
+            StartCoroutine("ShootBallCR");
     }
 
     protected virtual IEnumerator ShootBallCR()

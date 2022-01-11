@@ -7,6 +7,7 @@ public class Ball : MonoBehaviour
     Animator anim;
     Rigidbody rb;
     Collider collider;
+    [SerializeField] ParticleSystem fireParticle;
 
     private void Awake()
     {
@@ -58,5 +59,25 @@ public class Ball : MonoBehaviour
         result *= Vxz;
         result.y = Vy;
         return result;
+    }
+
+    public void StartParticle()
+    {
+        if (fireParticle.isPlaying) return;
+        fireParticle.Play();
+    }
+
+    public void StopParticle()
+    {
+        if (fireParticle.isStopped) return;
+        fireParticle.Stop();
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if(collision.gameObject.CompareTag("Floor") || collision.gameObject.CompareTag("Enemy"))
+        {
+            StopParticle();
+        }
     }
 }

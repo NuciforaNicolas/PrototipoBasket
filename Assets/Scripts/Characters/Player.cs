@@ -8,17 +8,15 @@ public class Player : Character
     public Vector2 inputDir { get; set; }
     [SerializeField] Canvas superBarCanvas;
     [SerializeField] Image superBarImage;
-    [SerializeField] float timeToFill, tuckleForce, timeToEnableMovement;
-    [SerializeField] bool canMove;
+    [SerializeField] float timeToFill, tuckleForce;
+    bool isSuperPlayer;
     float t = 0;
-    Vector3 velocityCache;
 
     private void Awake()
     {
         base.Awake();
         superBarImage.fillAmount = 0;
         superBarCanvas.enabled = false;
-        canMove = true;
     }
 
     // Update is called once per frame
@@ -47,19 +45,19 @@ public class Player : Character
 
     public void StopMove()
     {
+        if (!GameManager.instance.CanPlay()) return;
+
         inputDir = Vector3.zero;
         anim.SetBool("isRunning", false);
         if (ballRef && canShoot) 
         {
-            canShoot = false;
+            //canShoot = false;
             ShootBall();
         }
         else if(!ballRef && (t >= timeToFill))
         {
-            canMove = false;
             SuperTuckle();
         }
-
         ResetSuperBar();
     }
 
@@ -72,41 +70,61 @@ public class Player : Character
         {
             superBarImage.fillAmount = Mathf.Lerp(0, 1, t / timeToFill);
         }
-        else
+        else if(!isSuperPlayer)
         {
-            superBarImage.color = Color.green;
-            ballRef?.StartParticle();
+            ActivateSuperPlayer();
         }
+    }
+
+    void ActivateSuperPlayer()
+    {
+        isSuperPlayer = true;
+        superBarImage.color = Color.green;
+        ballRef?.StartParticle();
     }
 
     void ResetSuperBar()
     {
+        
         t = 0;
         superBarImage.fillAmount = 0;
         superBarImage.color = Color.white;
         superBarCanvas.enabled = false;
+        if(isSuperPlayer)
+            isSuperPlayer = false;
     }
 
     void SuperTuckle()
     {
+        canMove = false;
         anim.SetTrigger("superTackle");
         rb.AddForce(transform.forward * tuckleForce, ForceMode.Impulse);
-        StartCoroutine("EnableMovement");
+        StartCoroutine(EnableMovement());
     }
 
-    IEnumerator EnableMovement()
-    {
-        yield return new WaitForSeconds(timeToEnableMovement);
-        canMove = true;
-    }
+    
 
-    private void OnCollisionEnter(Collision collision)
+    protected override void OnCollisionStay(Collision other)
     {
-        base.OnCollisionEnter(collision);
-
-        if (collision.gameObject.CompareTag("Enemy"))
+        base.OnCollisionStay(other);
+        if(other.gameObject.CompareTag("Ball"))
         {
-            ReleaseBall();
+            if (isSuperPlayer)
+                ballRef?.StartParticle();
+            else
+                ballRef?.StopParticle();
         }
+    }
+
+    public override void ResetCharacter()
+    {
+        base.ResetCharacter();
+        ResetSuperBar();
+    }
+
+    protected override void PushBack()
+    {
+        base.PushBack();
+        ResetSuperBar();
     }
 }

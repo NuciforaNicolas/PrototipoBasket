@@ -18,7 +18,6 @@ public class Basket : MonoBehaviour
         if(other.CompareTag("Ball"))
         {
             goal?.Invoke(basket == BasketType.player ? true : false);
-            Debug.Log("Goal from " + basket.ToString());
         }
     }
 }

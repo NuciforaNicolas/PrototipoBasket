@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class Character : MonoBehaviour
 {
-    [SerializeField] protected float moveSpeed, rotationSpeed, shootForce;
+    [SerializeField] protected float moveSpeed, rotationSpeed, shootForce, pushForce, timeToEnableMovement;
     [SerializeField] Transform ballSlot, shootSlot;
-    [SerializeField] protected Ball ballRef;
     [SerializeField] float timeToTakeBall, timeToTarget;
-    [SerializeField] protected bool canTakeBall, canShoot;
+    protected Ball ballRef;
+    protected bool canTakeBall, canShoot, canMove;
     protected Rigidbody rb;
     protected Animator anim;
     protected Vector3 moveDir, targetPos;
@@ -18,20 +18,33 @@ public class Character : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         anim = GetComponent<Animator>();
         canTakeBall = true;
+        canMove = true;
     }
 
     protected virtual void Move() { }
 
-    protected virtual void OnCollisionEnter(Collision collision)
+    protected virtual void OnCollisionStay(Collision collision)
     {
         if (collision.gameObject.CompareTag("Ball") && canTakeBall)
         {
-            anim.SetBool("hasBall", true);
-            ballRef = collision.gameObject.GetComponent<Ball>();
-            ballRef.GetBall(ballSlot);
-            canTakeBall = false;
-            canShoot = true;
+            GetBall(collision.gameObject);
         }
+    }
+
+    protected virtual void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Enemy"))
+        {
+            ReleaseBall();
+            PushBack();
+        }
+    }
+
+    protected virtual void PushBack()
+    {
+        canMove = false;
+        rb.AddForce(-transform.forward * pushForce, ForceMode.Impulse);
+        StartCoroutine(EnableMovement());
     }
 
     protected IEnumerator CanTakeBallCountDown()
@@ -40,19 +53,29 @@ public class Character : MonoBehaviour
         canTakeBall = true;
     }
 
+    protected virtual void GetBall(GameObject ball)
+    {
+        anim.SetBool("hasBall", true);
+        ballRef = ball.gameObject.GetComponent<Ball>();
+        ballRef.GetBall(ballSlot);
+        canTakeBall = false;
+        canShoot = true;
+    }
+
     protected virtual void ReleaseBall()
     {
         if (!ballRef) return;
         ballRef.ReleaseBall();
         ballRef = null;
         anim.SetBool("hasBall", false);
+        canShoot = false;
         StartCoroutine("CanTakeBallCountDown");
     }
 
 
     protected virtual void ShootBall()
     {
-        if(ballRef)
+        if(ballRef && canMove)
             StartCoroutine("ShootBallCR");
     }
 
@@ -61,7 +84,21 @@ public class Character : MonoBehaviour
         anim.SetTrigger("throw");
         yield return new WaitForSeconds(anim.GetCurrentAnimatorStateInfo(0).length);
         var target = transform.position + (transform.forward * shootForce);
-        ballRef.ShootBall(shootSlot.position, target, timeToTarget);
+        ballRef?.ShootBall(shootSlot.position, target, timeToTarget);
         ReleaseBall();
+    }
+
+    protected IEnumerator EnableMovement()
+    {
+        yield return new WaitForSeconds(timeToEnableMovement);
+        rb.velocity = Vector3.zero;
+        canMove = true;
+    }
+
+    public virtual void ResetCharacter()
+    {
+        rb.velocity = Vector3.zero;
+        canTakeBall = true;
+        canMove = true;
     }
 }

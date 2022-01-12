@@ -2,29 +2,42 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
+using Cinemachine;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
 
     [SerializeField] float matchDurationInSeconds, timeToPlay;
-    [SerializeField] TMP_Text timer, playerScoreText, enemyScoreText;
+    [SerializeField] TMP_Text timer, playerScoreText, enemyScoreText, winnerText;
     [SerializeField] Transform spawnPlayer, spawnEnemy, spawnBall, player, enemy, ball;
+    [SerializeField] CanvasGroup scoreTableCanvas, controllerCanvas, endMatchCanvas, homeScreenCanvas;
+    [SerializeField] CinemachineVirtualCamera playerCam, startCam;
     int playerScore, enemyScore;
-    bool canPlay;
+    bool canPlay, isOvertime;
+    const string overtimeStr = "OVERTIME";
 
     private void Awake()
     {
+        Application.targetFrameRate = 60;
         instance = this;
         Basket.goal += Goal;
         playerScore = 0;
         enemyScore = 0;
+        isOvertime = false;
+        canPlay = false;
         DisplayTime();
     }
 
     private void Start()
     {
-        Respawn();
+        DisableCanvas(scoreTableCanvas);
+        DisableCanvas(controllerCanvas);
+        DisableCanvas(endMatchCanvas);
+        EnableCanvas(homeScreenCanvas);
+        startCam.Priority = 99;
+        playerCam.Priority = -1;
     }
 
     // Update is called once per frame
@@ -41,10 +54,21 @@ public class GameManager : MonoBehaviour
             matchDurationInSeconds = 0;
             CheckWinner();
         }
-        DisplayTime();
+        if(!isOvertime)
+            DisplayTime();
     }
 
-    IEnumerator StartGame()
+    public void StartGame()
+    {
+        playerCam.Priority = 99;
+        startCam.Priority = -1;
+        EnableCanvas(scoreTableCanvas);
+        EnableCanvas(controllerCanvas);
+        DisableCanvas(homeScreenCanvas);
+        Respawn();
+    }
+
+    IEnumerator StartGameCR()
     {
         yield return new WaitForSeconds(timeToPlay);
         canPlay = true;
@@ -79,7 +103,9 @@ public class GameManager : MonoBehaviour
         ball.transform.rotation = spawnBall.transform.rotation;
         ball.GetComponent<Ball>().StopParticle();
         ball.GetComponent<Rigidbody>().isKinematic = true;
-        StartCoroutine("StartGame");
+        player.GetComponent<Player>().ResetCharacter();
+        enemy.GetComponent<Enemy>().ResetCharacter();
+        StartCoroutine(StartGameCR());
     }
 
     public bool CanPlay()
@@ -91,17 +117,46 @@ public class GameManager : MonoBehaviour
     {
         if(playerScore == enemyScore)
         {
-            Debug.Log("Overtime");
+            isOvertime = true;
+            timer.text = overtimeStr;
             return;
         }
         else if(playerScore > enemyScore)
         {
-            Debug.Log("You Won");
+            winnerText.text = "Player";
         }
         else
         {
-            Debug.Log("You Lose");
+            winnerText.text = "Enemy";
         }
+        EndGame();
+    }
+
+    void EndGame()
+    {
         canPlay = false;
+        Time.timeScale = 0;
+        DisableCanvas(scoreTableCanvas);
+        DisableCanvas(controllerCanvas);
+        EnableCanvas(endMatchCanvas);
+    }
+
+    public void RestartGame()
+    {
+        if (Time.timeScale == 0) Time.timeScale = 1;
+        SceneManager.LoadScene(0);
+    }
+
+    void EnableCanvas(CanvasGroup canvas)
+    {
+        canvas.alpha = 1;
+        canvas.interactable = true;
+        canvas.blocksRaycasts = true;
+    }
+    void DisableCanvas(CanvasGroup canvas)
+    {
+        canvas.alpha = 0;
+        canvas.interactable = false;
+        canvas.blocksRaycasts = false;
     }
 }

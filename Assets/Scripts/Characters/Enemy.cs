@@ -9,7 +9,6 @@ public class Enemy : Character
     [SerializeField] float distanceToShoot;
     Vector3 targetToReach;
     bool isShooting;
-    int shootCount = 0;
 
     protected override void Awake()
     {
@@ -39,7 +38,7 @@ public class Enemy : Character
             ShootBall();  
         }
 
-        if(!isShooting)
+        if(!isShooting && canMove)
             Move();
 
         FaceTarget();
@@ -60,13 +59,9 @@ public class Enemy : Character
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
     }
 
-    private void OnCollisionEnter(Collision collision)
+    public override void ResetCharacter()
     {
-        base.OnCollisionEnter(collision);
-
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            ReleaseBall();
-        }
+        base.ResetCharacter();
+        canShoot = true;
     }
 }

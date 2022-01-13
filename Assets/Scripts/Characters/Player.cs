@@ -9,7 +9,7 @@ public class Player : Character
     [SerializeField] Canvas superBarCanvas;
     [SerializeField] Image superBarImage;
     [SerializeField] float timeToFill, tuckleForce;
-    bool isSuperPlayer;
+    bool isSuperPlayer, isSuperTuckle;
     float t = 0;
 
     private void Awake()
@@ -22,9 +22,8 @@ public class Player : Character
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (!GameManager.instance.CanPlay()) return;
-        if (canMove)
-            Move();
+        if (!GameManager.instance.CanPlay() || !canMove) return;
+        Move();
     }
 
     protected override void Move()
@@ -97,12 +96,17 @@ public class Player : Character
     void SuperTuckle()
     {
         canMove = false;
+        isSuperTuckle = true;
         anim.SetTrigger("superTackle");
         rb.AddForce(transform.forward * tuckleForce, ForceMode.Impulse);
         StartCoroutine(EnableMovement());
     }
 
-    
+    protected override IEnumerator EnableMovement()
+    {
+        yield return base.EnableMovement();
+        isSuperTuckle = false;
+    }
 
     protected override void OnCollisionStay(Collision other)
     {
@@ -116,13 +120,25 @@ public class Player : Character
         }
     }
 
+    protected void OnCollisionEnter(Collision collision)
+    {
+        if(collision.gameObject.CompareTag("Enemy"))
+        {
+            var enemyRef = collision.gameObject.GetComponent<Enemy>();
+            if (isSuperTuckle)
+                enemyRef.Stun();
+            else
+                enemyRef.PushBack();
+        }
+    }
+
     public override void ResetCharacter()
     {
         base.ResetCharacter();
         ResetSuperBar();
     }
 
-    protected override void PushBack()
+    public override void PushBack()
     {
         base.PushBack();
         ResetSuperBar();

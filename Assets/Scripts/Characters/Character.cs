@@ -7,7 +7,7 @@ public class Character : MonoBehaviour
     [SerializeField] protected float moveSpeed, rotationSpeed, shootForce, pushForce, timeToEnableMovement;
     [SerializeField] Transform ballSlot, shootSlot;
     [SerializeField] float timeToTakeBall, timeToTarget;
-    protected Ball ballRef;
+    [SerializeField] protected Ball ballRef;
     protected bool canTakeBall, canShoot, canMove;
     protected Rigidbody rb;
     protected Animator anim;
@@ -31,19 +31,13 @@ public class Character : MonoBehaviour
         }
     }
 
-    protected virtual void OnCollisionEnter(Collision collision)
+    public virtual void PushBack()
     {
-        if (collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Enemy"))
-        {
-            ReleaseBall();
-            PushBack();
-        }
-    }
-
-    protected virtual void PushBack()
-    {
+        ReleaseBall();
         canMove = false;
+        canTakeBall = false;
         rb.AddForce(-transform.forward * pushForce, ForceMode.Impulse);
+        StartCoroutine(CanTakeBallCountDown());
         StartCoroutine(EnableMovement());
     }
 
@@ -88,7 +82,7 @@ public class Character : MonoBehaviour
         ReleaseBall();
     }
 
-    protected IEnumerator EnableMovement()
+    protected virtual IEnumerator EnableMovement()
     {
         yield return new WaitForSeconds(timeToEnableMovement);
         rb.velocity = Vector3.zero;

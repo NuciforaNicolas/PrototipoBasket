@@ -11,9 +11,9 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] float matchDurationInSeconds, timeToPlay;
     [SerializeField] TMP_Text timer, playerScoreText, enemyScoreText, winnerText;
-    [SerializeField] Transform spawnPlayer, spawnEnemy, spawnBall, player, enemy, ball;
     [SerializeField] CanvasGroup scoreTableCanvas, controllerCanvas, endMatchCanvas, homeScreenCanvas;
     [SerializeField] CinemachineVirtualCamera playerCam, startCam;
+    Transform spawnPlayer, spawnEnemy, spawnBall, player, enemy, ball;
     int playerScore, enemyScore;
     bool canPlay, isOvertime;
     const string overtimeStr = "OVERTIME";
@@ -22,12 +22,17 @@ public class GameManager : MonoBehaviour
     {
         Application.targetFrameRate = 60;
         instance = this;
-        Basket.goal += Goal;
         playerScore = 0;
         enemyScore = 0;
         isOvertime = false;
         canPlay = false;
         DisplayTime();
+        spawnBall = GameObject.FindGameObjectWithTag("SpawnBall").transform;
+        spawnPlayer = GameObject.FindGameObjectWithTag("SpawnPlayer").transform;
+        spawnEnemy = GameObject.FindGameObjectWithTag("SpawnEnemy").transform;
+        ball = GameObject.FindGameObjectWithTag("Ball").transform;
+        player = GameObject.FindGameObjectWithTag("Player").transform;
+        enemy = GameObject.FindGameObjectWithTag("Enemy").transform;
     }
 
     private void Start()
@@ -158,5 +163,15 @@ public class GameManager : MonoBehaviour
         canvas.alpha = 0;
         canvas.interactable = false;
         canvas.blocksRaycasts = false;
+    }
+
+    private void OnEnable()
+    {
+        Basket.goal += Goal;
+    }
+
+    private void OnDisable()
+    {
+        Basket.goal -= Goal;
     }
 }

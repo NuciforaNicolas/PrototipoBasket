@@ -6,7 +6,8 @@ public class Enemy : Character
 {
     [SerializeField] Transform ballPosition;
     [SerializeField] Transform basketPos;
-    [SerializeField] float distanceToShoot;
+    [SerializeField] float distanceToShoot, stunForce, timeToRespawn;
+    [SerializeField] Transform spawnPosition;
     Vector3 targetToReach;
     bool isShooting;
 
@@ -62,6 +63,35 @@ public class Enemy : Character
     public override void ResetCharacter()
     {
         base.ResetCharacter();
+        rb.constraints = RigidbodyConstraints.FreezeRotation;
         canShoot = true;
+    }
+
+    public void Stun()
+    {
+        ReleaseBall();
+        anim.SetBool("isRunning", false);
+        canMove = false;
+        canShoot = false;
+        canTakeBall = false;
+        rb.constraints = RigidbodyConstraints.None;
+        rb.AddForce(Vector3.up * stunForce, ForceMode.Impulse);
+        StartCoroutine("RespawnEnemy");
+    }
+
+    IEnumerator RespawnEnemy()
+    {
+        yield return new WaitForSeconds(timeToRespawn);
+        transform.position = spawnPosition.position;
+        transform.rotation = spawnPosition.rotation;
+        ResetCharacter();
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if(collision.gameObject.CompareTag("Player"))
+        {
+            collision.gameObject.GetComponent<Player>().PushBack();
+        }
     }
 }

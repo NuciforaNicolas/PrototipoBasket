@@ -51,7 +51,7 @@ public class Character : MonoBehaviour
     {
         anim.SetBool("hasBall", true);
         ballRef = ball.gameObject.GetComponent<Ball>();
-        ballRef.GetBall(ballSlot);
+        ballRef?.GetBall(ballSlot);
         canTakeBall = false;
         canShoot = true;
     }
@@ -59,7 +59,7 @@ public class Character : MonoBehaviour
     protected virtual void ReleaseBall()
     {
         if (!ballRef) return;
-        ballRef.ReleaseBall();
+        ballRef?.ReleaseBall();
         ballRef = null;
         anim.SetBool("hasBall", false);
         canShoot = false;

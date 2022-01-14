@@ -126,9 +126,9 @@ public class Player : Character
         {
             var enemyRef = collision.gameObject.GetComponent<Enemy>();
             if (isSuperTuckle)
-                enemyRef.Stun();
+                enemyRef?.Stun();
             else
-                enemyRef.PushBack();
+                enemyRef?.PushBack();
         }
     }
 

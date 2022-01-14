@@ -1,35 +1,43 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BallIndicator : MonoBehaviour
 {
-    [SerializeField] GameObject ballIndicator;
-    [SerializeField] GameObject target;
-    Renderer renderer;
- 
+    [SerializeField] RectTransform ballIndicator;
+    [SerializeField] Transform target;
+    [SerializeField] float screenBorderOffset;
+    Image ballIndicatorSprite;
+    bool isStartGame;
+
     private void Awake()
     {
-        renderer = GetComponent<Renderer>();
+        ballIndicatorSprite = ballIndicator.GetComponent<Image>();
+        ballIndicatorSprite.enabled = false;
+        isStartGame = true;
     }
 
     private void Update()
     {
-        if(!renderer.isVisible)
+        if (!GameManager.instance.CanPlay() && isStartGame) return;
+        isStartGame = false;
+
+        var targetPosScreenPoint = Camera.main.WorldToScreenPoint(target.position);
+        if (targetPosScreenPoint.x <= screenBorderOffset || targetPosScreenPoint.x >= Screen.width - screenBorderOffset ||
+            targetPosScreenPoint.y <= screenBorderOffset || targetPosScreenPoint.y >= Screen.height - screenBorderOffset)
         {
-            if (!ballIndicator.activeSelf) ballIndicator.SetActive(true);
-            var dir = target.transform.position - transform.position;
-            if(Physics.Raycast(transform.position, dir, out var hit, 100, 1 << 7))
-            { 
-                if(hit.collider)
-                {
-                    ballIndicator.transform.position = hit.point;
-                }
-            }
+            ballIndicatorSprite.enabled = true;
+            var cappedTargetScreenPos = targetPosScreenPoint;
+            if (cappedTargetScreenPos.x <= screenBorderOffset) cappedTargetScreenPos.x = screenBorderOffset;
+            if (cappedTargetScreenPos.x >= Screen.width - screenBorderOffset) cappedTargetScreenPos.x = Screen.width - screenBorderOffset;
+            if (cappedTargetScreenPos.y <= screenBorderOffset) cappedTargetScreenPos.y = screenBorderOffset;
+            if (cappedTargetScreenPos.y >= Screen.height - screenBorderOffset) cappedTargetScreenPos.y = Screen.height - screenBorderOffset;
+
+            ballIndicator.position = cappedTargetScreenPos;
+            ballIndicator.localPosition = new Vector3(ballIndicator.localPosition.x, ballIndicator.localPosition.y, 0f);
         }
         else
-        {
-            if (ballIndicator.activeSelf) ballIndicator.SetActive(false);
-        }
+            ballIndicatorSprite.enabled = false;
     }
 }

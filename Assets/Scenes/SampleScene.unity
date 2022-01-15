@@ -2392,8 +2392,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_LocalRotation: {x: 0.33100694, y: -0.000000016236429, z: 0.0000000056954317, w: 0.9436283}
-  m_LocalPosition: {x: -3.7589998, y: 9.540624, z: -9.121749}
+  m_LocalRotation: {x: -0, y: -0.008464695, z: -0, w: 0.9999642}
+  m_LocalPosition: {x: -3.565, y: 2.174, z: -6.025}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2420,7 +2420,7 @@ MonoBehaviour:
   m_BlendUpdateMethod: 0
   m_DefaultBlend:
     m_Style: 1
-    m_Time: 2
+    m_Time: 0.5
     m_CustomCurve:
       serializedVersion: 2
       m_Curve: []
@@ -5342,7 +5342,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2fa657a24910b9b48a48f7477548ab2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  matchDurationInSeconds: 600
+  matchDurationInSeconds: 45
   timeToPlay: 2
   timer: {fileID: 173384015}
   playerScoreText: {fileID: 2020467494}

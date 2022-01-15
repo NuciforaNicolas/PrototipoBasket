@@ -28,13 +28,13 @@ public class BallIndicator : MonoBehaviour
             targetPosScreenPoint.y <= screenBorderOffset || targetPosScreenPoint.y >= Screen.height - screenBorderOffset)
         {
             ballIndicatorSprite.enabled = true;
-            var cappedTargetScreenPos = targetPosScreenPoint;
-            if (cappedTargetScreenPos.x <= screenBorderOffset) cappedTargetScreenPos.x = screenBorderOffset;
-            if (cappedTargetScreenPos.x >= Screen.width - screenBorderOffset) cappedTargetScreenPos.x = Screen.width - screenBorderOffset;
-            if (cappedTargetScreenPos.y <= screenBorderOffset) cappedTargetScreenPos.y = screenBorderOffset;
-            if (cappedTargetScreenPos.y >= Screen.height - screenBorderOffset) cappedTargetScreenPos.y = Screen.height - screenBorderOffset;
+            var targetInsideScreenPos = targetPosScreenPoint;
+            if (targetInsideScreenPos.x <= screenBorderOffset) targetInsideScreenPos.x = screenBorderOffset;
+            if (targetInsideScreenPos.x >= Screen.width - screenBorderOffset) targetInsideScreenPos.x = Screen.width - screenBorderOffset;
+            if (targetInsideScreenPos.y <= screenBorderOffset) targetInsideScreenPos.y = screenBorderOffset;
+            if (targetInsideScreenPos.y >= Screen.height - screenBorderOffset) targetInsideScreenPos.y = Screen.height - screenBorderOffset;
 
-            ballIndicator.position = cappedTargetScreenPos;
+            ballIndicator.position = targetInsideScreenPos;
             ballIndicator.localPosition = new Vector3(ballIndicator.localPosition.x, ballIndicator.localPosition.y, 0f);
         }
         else

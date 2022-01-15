@@ -41,7 +41,6 @@ public class Ball : MonoBehaviour
     public void ShootBall(Vector3 origin, Vector3 target, float time)
     {
         transform.position = origin;
-        Debug.Log("Shot: " + (Mathf.Round(((goodShotPos.position - target).magnitude) * 10f) * 0.1f) + " delta+: " + (delta + errorCorrection) + " delta-: " + (delta - errorCorrection));
         if ((Mathf.Round(((goodShotPos.position - target).magnitude) * 10f) * 0.1f) >= (delta - errorCorrection) && (Mathf.Round(((goodShotPos.position - target).magnitude) * 10f) * 0.1f) <= (delta + errorCorrection))
             goodShot?.Invoke();
         Vector3 Vo = CalculateVelocity(origin, target, time);

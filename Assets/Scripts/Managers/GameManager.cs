@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] float matchDurationInSeconds, timeToPlay;
     [SerializeField] TMP_Text timer, playerScoreText, enemyScoreText, winnerText;
     [SerializeField] CanvasGroup scoreTableCanvas, controllerCanvas, endMatchCanvas, homeScreenCanvas;
-    [SerializeField] CinemachineVirtualCamera playerCam, startCam;
+    [SerializeField] CinemachineVirtualCamera playerCam, startCam, goodShotCam;
     Transform spawnPlayer, spawnEnemy, spawnBall, player, enemy, ball;
     int playerScore, enemyScore;
     bool canPlay, isOvertime;
@@ -65,8 +65,8 @@ public class GameManager : MonoBehaviour
 
     public void StartGame()
     {
-        playerCam.Priority = 99;
         startCam.Priority = -1;
+        playerCam.Priority = 99;
         EnableCanvas(scoreTableCanvas);
         EnableCanvas(controllerCanvas);
         DisableCanvas(homeScreenCanvas);
@@ -97,8 +97,19 @@ public class GameManager : MonoBehaviour
         Respawn();
     }
 
+    void GoodShot()
+    {
+        goodShotCam.Priority = 99;
+        playerCam.Priority = -1;
+    }
+
     void Respawn()
     {
+        if(goodShotCam.Priority >= 99)
+        {
+            goodShotCam.Priority = -1;
+            playerCam.Priority = 99;
+        }
         canPlay = false;
         player.transform.position = spawnPlayer.transform.position;
         player.transform.rotation = spawnPlayer.transform.rotation;
@@ -168,10 +179,12 @@ public class GameManager : MonoBehaviour
     private void OnEnable()
     {
         Basket.goal += Goal;
+        Ball.goodShot += GoodShot;
     }
 
     private void OnDisable()
     {
         Basket.goal -= Goal;
+        Ball.goodShot -= GoodShot;
     }
 }

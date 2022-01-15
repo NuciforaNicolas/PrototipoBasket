@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
 
 public class Ball : MonoBehaviour
 {
@@ -8,6 +9,10 @@ public class Ball : MonoBehaviour
     Rigidbody rb;
     Collider collider;
     [SerializeField] ParticleSystem fireParticle;
+    [SerializeField] Transform goodShotPos;
+    [SerializeField] float delta, errorCorrection;
+    public delegate void GoodShot();
+    public static GoodShot goodShot;
 
     private void Awake()
     {
@@ -36,6 +41,9 @@ public class Ball : MonoBehaviour
     public void ShootBall(Vector3 origin, Vector3 target, float time)
     {
         transform.position = origin;
+        Debug.Log("Shot: " + (Mathf.Round(((goodShotPos.position - target).magnitude) * 10f) * 0.1f) + " delta+: " + (delta + errorCorrection) + " delta-: " + (delta - errorCorrection));
+        if ((Mathf.Round(((goodShotPos.position - target).magnitude) * 10f) * 0.1f) >= (delta - errorCorrection) && (Mathf.Round(((goodShotPos.position - target).magnitude) * 10f) * 0.1f) <= (delta + errorCorrection))
+            goodShot?.Invoke();
         Vector3 Vo = CalculateVelocity(origin, target, time);
         rb.velocity = Vo;
     }

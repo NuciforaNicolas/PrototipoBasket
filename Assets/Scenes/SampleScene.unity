@@ -399,7 +399,7 @@ MonoBehaviour:
   fireParticle: {fileID: 1964798243}
   goodShotPos: {fileID: 694041011}
   delta: 3.1
-  errorCorrection: 0.2
+  errorCorrection: 0.1
 --- !u!1 &173384013
 GameObject:
   m_ObjectHideFlags: 0

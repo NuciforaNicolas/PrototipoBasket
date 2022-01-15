@@ -97,18 +97,23 @@ public class GameManager : MonoBehaviour
         Respawn();
     }
 
-    void GoodShot()
+    void GoodShotEnable()
     {
         goodShotCam.Priority = 99;
         playerCam.Priority = -1;
+    }
+
+    public void GoodShotDisable()
+    {
+        goodShotCam.Priority = -1;
+        playerCam.Priority = 99;
     }
 
     void Respawn()
     {
         if(goodShotCam.Priority >= 99)
         {
-            goodShotCam.Priority = -1;
-            playerCam.Priority = 99;
+            GoodShotDisable();
         }
         canPlay = false;
         player.transform.position = spawnPlayer.transform.position;
@@ -179,12 +184,12 @@ public class GameManager : MonoBehaviour
     private void OnEnable()
     {
         Basket.goal += Goal;
-        Ball.goodShot += GoodShot;
+        Ball.goodShot += GoodShotEnable;
     }
 
     private void OnDisable()
     {
         Basket.goal -= Goal;
-        Ball.goodShot -= GoodShot;
+        Ball.goodShot -= GoodShotEnable;
     }
 }

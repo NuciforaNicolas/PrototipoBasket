@@ -11,6 +11,7 @@ public class Ball : MonoBehaviour
     [SerializeField] ParticleSystem fireParticle;
     [SerializeField] Transform goodShotPos;
     [SerializeField] float delta, errorCorrection;
+    bool isGoodShot;
     public delegate void GoodShot();
     public static GoodShot goodShot;
 
@@ -42,7 +43,10 @@ public class Ball : MonoBehaviour
     {
         transform.position = origin;
         if ((Mathf.Round(((goodShotPos.position - target).magnitude) * 10f) * 0.1f) >= (delta - errorCorrection) && (Mathf.Round(((goodShotPos.position - target).magnitude) * 10f) * 0.1f) <= (delta + errorCorrection))
+        {
             goodShot?.Invoke();
+            isGoodShot = true;
+        } 
         Vector3 Vo = CalculateVelocity(origin, target, time);
         rb.velocity = Vo;
     }
@@ -84,6 +88,12 @@ public class Ball : MonoBehaviour
     {
         if(collision.gameObject.CompareTag("Floor") || collision.gameObject.CompareTag("Enemy"))
         {
+            // Magari il tiro sembrava buono ma per qualche motivo esce fuori
+            if(isGoodShot)
+            {
+                GameManager.instance.GoodShotDisable();
+                isGoodShot = false;
+            }
             StopParticle();
         }
     }
